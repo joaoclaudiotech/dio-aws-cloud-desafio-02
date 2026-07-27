@@ -14,26 +14,24 @@ Diagrama representando o workflow criado no Step Functions, com o estado de Mapa
 
 ## O que eu fiz na prática
 
-1. Criei a State Machine no Step Functions com o estado de Mapa Distribuído
+1. Criei um bucket S3 (`desafio-step-functions-arquivos`) e subi 3 arquivos de teste para servirem de entrada para o workflow
 
-![Criação da State Machine](imagens/criacao-state-machine.png)
+2. Criei a State Machine no Step Functions em modo **Standard**, usando o editor visual (Workflow Studio)
 
-2. Configurei o Mapa Distribuído para listar e processar os arquivos de um bucket S3
+3. Adicionei o estado **Map** e configurei o **Processing mode** como **Distributed**, com **Item source** apontando para o bucket S3 criado
 
-3. Executei o workflow e acompanhei o progresso de cada execução (Map Run)
+4. Adicionei um estado **Pass** dentro do Map (ItemProcessor) para representar o processamento de cada item
+
+5. Corrigi um erro de validação (ItemProcessor vazio) ao garantir que o estado Pass fosse solto corretamente dentro do bloco Map
+
+6. Executei o workflow (**Start execution**) e acompanhei a execução na Graph view
 
 ![Execução do workflow](imagens/execucao-workflow.png)
 
-4. Verifiquei o resultado de cada iteração do Mapa Distribuído (sucesso/falha por item processado)
-
-![Resultado das iterações](imagens/resultado-iteracoes.png)
-
-5. Monitorei os logs e o histórico de execução da State Machine
-
-![Logs de execução](imagens/logs-execucao.png)
+7. Confirmei que o Map processou os 3 arquivos do bucket com sucesso (bloco todo verde, `Item source: desafio-step-functions-arquivos`)
 
 ## Minhas impressões
-Escreva aqui, com suas palavras, o que achou mais difícil, o que ficou mais claro depois da prática e onde pretende usar esse conhecimento.
+A configuração do Mapa Distribuído em si foi tranquila pelo editor visual, mas esbarrei em um erro de validação porque o estado "Pass" não tinha sido solto exatamente dentro da área do Map (ItemProcessor) — o erro `ItemProcessor/StartAt: Value cannot be an empty string` deixou isso claro. Depois de corrigir, o workflow rodou sem problemas, processando os 3 arquivos do bucket S3 automaticamente. Ficou evidente como o Step Functions abstrai a orquestração: não precisei escrever nenhuma lógica de loop ou controle de concorrência para processar múltiplos arquivos, bastou apontar o Map para o bucket. Pretendo usar esse conhecimento para automatizar pipelines de processamento de arquivos em lote (ex: validação de notas fiscais, transformação de dados) sem precisar gerenciar a orquestração manualmente.
 
 ## Referências
 
